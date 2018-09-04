@@ -1,0 +1,4 @@
+backend = "env"
+confdir = "/etc/confd"
+interval = 10
+log-level = "info"

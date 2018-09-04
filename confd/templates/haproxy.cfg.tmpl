@@ -1,0 +1,52 @@
+global
+  pidfile  /var/run/haproxy.pid
+  maxconn  100000
+
+defaults
+  option   dontlognull
+  option   redispatch
+  option   http-server-close
+  timeout  connect 5s
+  timeout  client  3m
+  timeout  server  3m
+  retries  3
+
+resolvers dns
+  nameserver cloudflare-dns-1 1.1.1.1:53
+  hold valid 60s
+
+{{ $http_backends := getenv "HTTP_BACKENDS" }}
+{{ $https_backends := getenv "HTTPS_BACKENDS" }}
+
+listen http_80
+  bind    *:80
+  mode    tcp
+  option  tcplog
+  log     global
+  balance leastconn
+{{ if $http_backends }}
+{{ range $index, $backend := split $http_backends "," }}
+  server backend-{{ $index }} {{ $backend }} resolvers dns check inter 1500 fastinter 3000 fall 3
+{{end}}
+
+{{ else if eq $https_backends }}
+{{ range $index, $backend := split $https_backends "," }}
+  {{.}}
+  server backend-{{ $index }} {{ $backend }} check ssl verify none inter 1500 fastinter 3000 fall 3
+{{end}}
+{{end}}
+
+listen stats
+  bind  *:1000
+  mode  http
+  stats enable
+  stats hide-version
+  stats uri /
+  stats refresh 10s
+  stats show-node
+  stats show-legends
+  acl auth_ok http_auth(stats-auth)
+  http-request auth unless auth_ok
+
+userlist stats-auth
+    user admin insecure-password {{getenv "STATS_PASSWORD"}}
