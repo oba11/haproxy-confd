@@ -1,8 +1,10 @@
 global
+  log stdout  format raw  local0 debug
   pidfile  /var/run/haproxy.pid
   maxconn  100000
 
 defaults
+  log      global
   option   dontlognull
   option   redispatch
   option   http-server-close
@@ -29,10 +31,9 @@ listen http_80
   server backend-{{ $index }} {{ $backend }} resolvers dns check inter 1500 fastinter 3000 fall 3
 {{end}}
 
-{{ else if eq $https_backends }}
+{{ else if $https_backends }}
 {{ range $index, $backend := split $https_backends "," }}
-  {{.}}
-  server backend-{{ $index }} {{ $backend }} check ssl verify none inter 1500 fastinter 3000 fall 3
+  server backend-{{ $index }} {{ $backend }} resolvers dns check ssl verify none inter 1500 fastinter 3000 fall 3
 {{end}}
 {{end}}
 

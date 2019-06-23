@@ -1,4 +1,4 @@
-FROM haproxy:1.8-alpine
+FROM haproxy:2.0-alpine
 MAINTAINER Oluwaseun Obajobi <oba@obajobi.com>
 
 RUN apk add --update openssl && \
