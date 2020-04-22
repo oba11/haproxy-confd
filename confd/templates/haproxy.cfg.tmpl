@@ -1,5 +1,5 @@
 global
-  log stdout  format raw  local0 debug
+  log stdout local0
   pidfile  /var/run/haproxy.pid
   maxconn  100000
 
@@ -43,6 +43,7 @@ listen stats
   stats enable
   stats hide-version
   stats uri /
+  http-request use-service prometheus-exporter if { path /metrics }
   stats refresh 10s
   stats show-node
   stats show-legends

@@ -1,11 +1,14 @@
-app:
-  build: .
-  volumes:
-    - ./confd:/etc/confd
-  ports:
-    - "80:80"
-    - "1000:1000"
-  restart: always
-  environment:
-    HTTP_BACKENDS: 1.1.1.1:80
-    HTTPS_BACKENDS:
+version: '3.7'
+
+services:
+  app:
+    build: .
+    volumes:
+      - ./confd:/etc/confd
+    ports:
+      - "80:80"
+      - "1000:1000"
+    restart: always
+    environment:
+      HTTP_BACKENDS: www.google.com:80
+      HTTPS_BACKENDS:
